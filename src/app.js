@@ -88,6 +88,9 @@ app.delete('/users/:id', async(req, res) => {
   }
 });
 app.use(express.json());
+
+// * create todo in a user 
+
 app.post('/users/:id/todos', async (req, res) => {
   try {
     const { id } = req.params;
@@ -99,7 +102,7 @@ app.post('/users/:id/todos', async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    await Todos.create({
+    const todo = await Todos.create({
       ...newTodo,
       user_id: user.id,
     });
