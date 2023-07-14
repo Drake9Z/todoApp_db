@@ -87,31 +87,39 @@ app.delete('/users/:id', async(req, res) => {
     res.status(400).json(error);
   }
 });
-
-//** CREATE A TODO IN A USER
-
 app.use(express.json());
-app.post('/users/:id/todos', async(req, res) => {
+app.post('/users/:id/todos', async (req, res) => {
   try {
-    const {id} = req.params;
-    const newTodo = req.body;
+    const { id } = req.params;
+    const { newTodo, categories } = req.body;
 
     const user = await Users.findByPk(id);
 
-    if(!user){
-      res.status(404).json({error: "User not found"});
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    const content = {
+    await Todos.create({
       ...newTodo,
       user_id: user.id,
-    };
+    });
 
-    await Todos.create(content);
+    for (const categoryId of categories) {
+      const category = await Categories.findByPk(categoryId);
 
-  res.status(201).json()    
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      await TodoCategories.create({
+        todo_id: todo.id,
+        category_id: categoryId,
+      });
+    }
+
+    res.status(201).json();
   } catch (error) {
-    res.status(404).json(error);
+    res.status(500).json(error);
   }
 });
 
